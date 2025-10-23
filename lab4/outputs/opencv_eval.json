@@ -1,0 +1,10 @@
+{
+  "tp": 41,
+  "fp": 0,
+  "fn": 9,
+  "tn": 30,
+  "precision": 1.0,
+  "recall": 0.82,
+  "n_face": 50,
+  "n_nonface": 30
+}

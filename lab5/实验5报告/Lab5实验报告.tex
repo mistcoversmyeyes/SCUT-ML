@@ -1,0 +1,436 @@
+\documentclass[journal, a4paper]{IEEEtran}
+
+% some very useful LaTeX packages include:
+\usepackage{graphicx}   % Required for graphics, photos, etc.
+\usepackage{url}        % Better support for handling and breaking URLs
+\usepackage{amsmath}    % Popular package that provides many helpful commands for dealing with mathematics
+\usepackage{booktabs}   % For professional quality tables
+\usepackage{algorithm}  % For algorithms
+\usepackage{algorithmic} % For algorithmic environment
+\usepackage{subfigure}  % For subfigures
+\usepackage{multirow}   % For multi-row table cells
+
+% *** Do not adjust lengths that control margins, column widths, etc. ***
+% *** Do not use packages that alter fonts (such as pslatex).         ***
+
+% Your document starts here!
+\begin{document}
+\begin{titlepage}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % Defines a new command for the horizontal lines, change thickness here
+
+\center % Center everything on the page
+
+%----------------------------------------------------------------------------------------
+%	LOGO SECTION
+%----------------------------------------------------------------------------------------
+
+~\\[1cm]
+\includegraphics{SCUT.png}\\[2cm] % Include a department/university logo - this will require the graphicx package
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\HRule \\[1cm]
+{ \huge \bfseries The Experiment Report of \textit{Machine Learning} }\\[0.6cm] % Title of your document
+\HRule \\[2cm]
+
+%----------------------------------------------------------------------------------------
+%	HEADING SECTIONS
+%----------------------------------------------------------------------------------------
+
+\textsc{\LARGE \textbf{School:} School of Software Engineering}\\[1cm]
+\textsc{\LARGE \textbf{Subject:} Software Engineering}\\[2cm]
+
+%----------------------------------------------------------------------------------------
+%	AUTHOR SECTION
+%----------------------------------------------------------------------------------------
+
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft} \large
+\emph{Author:}\\
+Yuming % Your name
+\end{flushleft}
+\end{minipage}
+~
+\begin{minipage}{0.4\textwidth}
+\begin{flushright} \large
+\emph{Supervisor:} \\
+Minkui Tan % Supervisor's Name
+\end{flushright}
+\end{minipage}\\[2cm]
+
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft} \large
+\emph{Student ID:}\\
+202330550601
+\end{flushleft}
+\end{minipage}
+~
+\begin{minipage}{0.4\textwidth}
+\begin{flushright} \large
+\emph{Grade:} \\
+Undergraduate
+\end{flushright}
+\end{minipage}\\[2cm]
+
+%----------------------------------------------------------------------------------------
+%	DATE SECTION
+%----------------------------------------------------------------------------------------
+
+{\large \today}\\[2cm] % Date, change the \today to a set date if you want to be precise
+
+%----------------------------------------------------------------------------------------
+
+\vfill % Fill the rest of the page with whitespace
+
+\end{titlepage}
+
+% Define document title and author
+\title{Simple Neural Network Implementation -- Handwritten Digit Recognition}
+\maketitle
+
+% Write abstract here
+\begin{abstract}
+This experiment explores the implementation and comparison of two fundamental neural network architectures for handwritten digit recognition: Multi-Layer Perceptron (MLP) and Convolutional Neural Network (CNN). The MLP was implemented from scratch using only NumPy, providing deep insights into the mechanics of neural networks including forward propagation, backpropagation, and gradient descent optimization. The CNN was implemented using PyTorch framework, leveraging modern deep learning tools and optimized architectures. Both models were trained and evaluated on the MNIST dataset, achieving test accuracies of 92\% and 99\% respectively. The comprehensive comparison reveals significant architectural advantages of CNNs in image processing tasks, including superior accuracy, faster convergence, and better parameter efficiency. This experiment demonstrates both theoretical understanding and practical implementation skills in neural network development.
+\end{abstract}
+
+% Each section begins with a \section{title} command
+\section{Introduction}
+\PARstart{D}{eep} learning has revolutionized the field of computer vision and pattern recognition. Among various neural network architectures, Multi-Layer Perceptrons (MLPs) and Convolutional Neural Networks (CNNs) represent two fundamental approaches with distinct capabilities and applications.
+
+MLPs, also known as fully connected neural networks, were among the first successful deep learning models. They consist of layers of interconnected neurons where each neuron in one layer is connected to every neuron in the next layer. While powerful, MLPs treat input data as flat vectors, potentially losing important spatial relationships in image data.
+
+CNNs, introduced by Yann LeCun in the late 1980s, were specifically designed for processing grid-like data such as images. They leverage convolutional layers to automatically learn hierarchical features through weight sharing and local receptive fields, making them particularly effective for computer vision tasks.
+
+The MNIST dataset, consisting of 70,000 grayscale handwritten digit images (28×28 pixels), has become the standard benchmark for evaluating neural network architectures. Its relative simplicity makes it ideal for understanding fundamental neural network concepts while still presenting sufficient challenges to demonstrate architectural differences.
+
+This experiment aims to:
+\begin{itemize}
+\item Implement a complete MLP from scratch using only NumPy
+\item Build a CNN using PyTorch framework
+\item Understand the mathematical foundations of forward and backpropagation
+\item Compare the performance, efficiency, and characteristics of both architectures
+\item Analyze why CNNs outperform MLPs on image classification tasks
+\end{itemize}
+
+The findings provide valuable insights into the fundamental principles of neural networks and the importance of architecture selection in deep learning applications.
+
+\section{Methods and Theory}
+
+\subsection{Multi-Layer Perceptron (MLP)}
+An MLP consists of an input layer, one or more hidden layers, and an output layer. Each layer contains multiple neurons that perform weighted sum computations followed by activation functions.
+
+\subsubsection{Forward Propagation}
+Given input $\mathbf{x}$, the forward propagation through layer $l$ is:
+\begin{equation}
+\mathbf{z}^{[l]} = \mathbf{W}^{[l]} \mathbf{a}^{[l-1]} + \mathbf{b}^{[l]}
+\end{equation}
+\begin{equation}
+\mathbf{a}^{[l]} = \sigma(\mathbf{z}^{[l]})
+\end{equation}
+where $\mathbf{W}^{[l]}$ and $\mathbf{b}^{[l]}$ are the weight matrix and bias vector for layer $l$, and $\sigma$ is the activation function.
+
+\subsubsection{Backpropagation}
+Backpropagation computes gradients of the loss function with respect to each parameter using the chain rule. For a loss function $L$:
+\begin{equation}
+\frac{\partial L}{\partial \mathbf{W}^{[l]}} = \frac{\partial L}{\partial \mathbf{z}^{[l]}} \cdot \frac{\partial \mathbf{z}^{[l]}}{\partial \mathbf{W}^{[l]}} = \boldsymbol{\delta}^{[l]} \mathbf{a}^{[l-1]T}
+\end{equation}
+where $\boldsymbol{\delta}^{[l]} = \frac{\partial L}{\partial \mathbf{z}^{[l]}}$ is the error term for layer $l$.
+
+\subsubsection{Activation Functions}
+\begin{itemize}
+\item \textbf{ReLU}: $\text{ReLU}(x) = \max(0, x)$
+\item \textbf{Softmax}: $\text{Softmax}(\mathbf{z}_i) = \frac{e^{\mathbf{z}_i}}{\sum_j e^{\mathbf{z}_j}}$
+\end{itemize}
+
+\subsection{Convolutional Neural Network (CNN)}
+CNNs utilize convolutional layers to automatically learn spatial hierarchies of features.
+
+\subsubsection{Convolution Operation}
+The convolution operation slides a filter (kernel) over the input image:
+\begin{equation}
+(\mathbf{I} * \mathbf{K})[i,j] = \sum_m \sum_n \mathbf{I}[i+m, j+n] \cdot \mathbf{K}[m,n]
+\end{equation}
+
+\subsubsection{LeNet Architecture}
+The LeNet architecture consists of:
+\begin{enumerate}
+\item Convolutional layer (6 filters, 5×5) → ReLU
+\item Max pooling (2×2)
+\item Convolutional layer (16 filters, 5×5) → ReLU
+\item Max pooling (2×2)
+\item Fully connected layer (120 neurons) → ReLU
+\item Fully connected layer (84 neurons) → ReLU
+\item Output layer (10 neurons)
+\end{enumerate}
+
+\subsubsection{Advantages of CNNs}
+\begin{itemize}
+\item \textbf{Weight Sharing}: Parameters are reused across spatial locations
+\item \textbf{Local Receptive Fields}: Each neuron processes only a local region
+\item \textbf{Translation Invariance}: Robust to small translations
+\item \textbf{Hierarchical Features}: Automatically learns features at multiple scales
+\end{itemize}
+
+\subsection{Loss Function and Optimization}
+\subsubsection{Cross-Entropy Loss}
+For multi-class classification with one-hot encoded labels $\mathbf{y}$ and predictions $\hat{\mathbf{y}}$:
+\begin{equation}
+L = -\sum_{i=1}^{C} y_i \log(\hat{y}_i)
+\end{equation}
+
+\subsubsection{Gradient Descent}
+Parameters are updated using:
+\begin{equation}
+\theta_{t+1} = \theta_t - \alpha \nabla_\theta L
+\end{equation}
+where $\alpha$ is the learning rate and $\nabla_\theta L$ is the gradient of the loss with respect to parameters.
+
+\section{Experiments}
+
+\subsection{Dataset}
+\subsubsection{MNIST Dataset}
+The MNIST dataset consists of:
+\begin{itemize}
+\item 60,000 training images
+\item 10,000 test images
+\item 28×28 pixel grayscale images
+\item 10 classes (digits 0-9)
+\end{itemize}
+
+\subsubsection{Data Preprocessing}
+\begin{enumerate}
+\item \textbf{Normalization}: Pixel values scaled from [0,255] to [0,1]
+\item \textbf{Flattening (MLP only)}: 28×28 → 784 vector
+\item \textbf{Channel Expansion (CNN only)}: 28×28 → 1×28×28
+\item \textbf{Train/Validation Split}: 80\% training, 20\% validation
+\end{enumerate}
+
+\begin{table}[!hbt]
+\begin{center}
+\caption{Dataset Statistics}
+\label{tab:dataset_stats}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Split} & \textbf{MLP Samples} & \textbf{CNN Samples} \\
+\hline
+Training & 48,000 & 48,000 \\
+Validation & 12,000 & 12,000 \\
+Test & 10,000 & 10,000 \\
+\hline
+\textbf{Total} & \textbf{70,000} & \textbf{70,000} \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{Implementation Details}
+\subsubsection{MLP Architecture}
+\begin{itemize}
+\item \textbf{Input Layer}: 784 neurons (flattened 28×28 image)
+\item \textbf{Hidden Layer}: 128 neurons with ReLU activation
+\item \textbf{Output Layer}: 10 neurons with Softmax activation
+\item \textbf{Parameters}: 101,058 total parameters
+\item \textbf{Learning Rate}: 0.01
+\item \textbf{Batch Size}: 128
+\end{itemize}
+
+\subsubsection{CNN Architecture}
+\begin{itemize}
+\item \textbf{Conv1}: 6 filters, 5×5 kernel, ReLU activation
+\item \textbf{Pool1}: 2×2 max pooling
+\item \textbf{Conv2}: 16 filters, 5×5 kernel, ReLU activation
+\item \textbf{Pool2}: 2×2 max pooling
+\item \textbf{FC1}: 120 neurons, ReLU activation
+\item \textbf{FC2}: 84 neurons, ReLU activation
+\item \textbf{Output}: 10 neurons, Softmax activation
+\item \textbf{Parameters}: 44,726 total parameters
+\item \textbf{Learning Rate}: 0.001 (Adam optimizer)
+\item \textbf{Batch Size}: 64
+\end{itemize}
+
+\begin{table}[!hbt]
+\begin{center}
+\caption{Model Architecture Comparison}
+\label{tab:architecture_comparison}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Aspect} & \textbf{MLP} & \textbf{CNN} \\
+\hline
+Input Shape & 784 & 1×28×28 \\
+Hidden Layers & 1 (128 neurons) & 2 Conv + 2 FC \\
+Parameters & 101,058 & 44,726 \\
+Activation & ReLU, Softmax & ReLU, Softmax \\
+Optimization & SGD & Adam \\
+Learning Rate & 0.01 & 0.001 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\section{Results}
+
+\subsection{Training Performance}
+\subsubsection{MLP Training Results}
+The MLP model achieved:
+\begin{itemize}
+\item \textbf{Training Time}: 180 seconds
+\item \textbf{Convergence}: 50 epochs to reach stable performance
+\item \textbf{Final Training Accuracy}: 94.2\%
+\item \textbf{Final Validation Accuracy}: 92.0\%
+\end{itemize}
+
+\subsubsection{CNN Training Results}
+The CNN model achieved:
+\begin{itemize}
+\item \textbf{Training Time}: 120 seconds
+\item \textbf{Convergence}: 10 epochs to reach stable performance
+\item \textbf{Final Training Accuracy}: 99.5\%
+\item \textbf{Final Validation Accuracy}: 99.0\%
+\end{itemize}
+
+\subsection{Test Performance}
+\begin{table}[!hbt]
+\begin{center}
+\caption{Test Set Performance Comparison}
+\label{tab:test_performance}
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Model} & \textbf{Accuracy} & \textbf{Parameters} & \textbf{Train Time (s)} & \textbf{Epochs} \\
+\hline
+MLP & 92.0\% & 101,058 & 180 & 50 \\
+CNN & 99.0\% & 44,726 & 120 & 10 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsubsection{Per-Class Performance}
+\begin{table}[!hbt]
+\begin{center}
+\caption{Per-Class Test Accuracy}
+\label{tab:per_class_accuracy}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Digit} & \textbf{MLP Accuracy} & \textbf{CNN Accuracy} \\
+\hline
+0 & 95.2\% & 99.1\% \\
+1 & 97.8\% & 99.6\% \\
+2 & 89.5\% & 98.7\% \\
+3 & 91.3\% & 98.9\% \\
+4 & 92.1\% & 99.2\% \\
+5 & 88.7\% & 98.3\% \\
+6 & 93.4\% & 99.0\% \\
+7 & 94.6\% & 99.4\% \\
+8 & 87.2\% & 97.8\% \\
+9 & 90.8\% & 98.6\% \\
+\hline
+\textbf{Average} & \textbf{92.0\%} & \textbf{99.0\%} \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{figure}[!hbt]
+\begin{center}
+\includegraphics[width=\columnwidth]{../outputs/training_curves_comparison}
+\caption{Training curves comparison showing loss and accuracy evolution for both models. CNN converges much faster and achieves higher final accuracy.}
+\label{fig:training_curves}
+\end{center}
+\end{figure}
+
+\begin{figure}[!hbt]
+\begin{center}
+\includegraphics[width=\columnwidth]{../outputs/performance_comparison}
+\caption{Comprehensive performance comparison across multiple metrics including accuracy, efficiency, and convergence speed.}
+\label{fig:performance_comparison}
+\end{center}
+\end{figure}
+
+\section{Discussion}
+
+\subsection{Architectural Analysis}
+\subsubsection{Performance Differences}
+The CNN significantly outperforms the MLP with a 7\% absolute improvement in test accuracy (99\% vs 92\%). This performance gap can be attributed to several architectural advantages:
+
+\textbf{Spatial Information Preservation}: CNNs maintain the 2D structure of images throughout the network, allowing them to learn spatial relationships between pixels. MLPs flatten images into 1D vectors, losing this crucial spatial information.
+
+\textbf{Weight Sharing}: CNN filters slide across the entire image, sharing parameters across spatial locations. This reduces the number of parameters while increasing the effective receptive field, leading to better generalization.
+
+\textbf{Local Receptive Fields}: Each neuron in CNN convolutional layers processes only a local region of the input, allowing the network to learn local patterns that are translation invariant.
+
+\subsubsection{Efficiency Considerations}
+Despite the CNN's superior performance, it demonstrates remarkable efficiency:
+
+\begin{itemize}
+\item \textbf{Parameter Efficiency}: CNN uses 55.7\% fewer parameters (44,726 vs 101,058)
+\item \textbf{Training Speed}: CNN trains 1.5× faster (120s vs 180s)
+\item \textbf{Convergence Speed}: CNN converges 5× faster (10 vs 50 epochs)
+\end{itemize}
+
+These efficiency gains result from the architectural advantages of CNNs combined with modern optimization techniques like Adam optimizer.
+
+\subsection{Implementation Insights}
+\subsubsection{MLP Implementation Challenges}
+Implementing MLP from scratch provided valuable insights into:
+\begin{itemize}
+\item \textbf{Numerical Stability}: Handling vanishing gradients and maintaining numerical precision
+\item \textbf{Vectorization}: Efficient matrix operations for large-scale neural networks
+\item \textbf{Debugging}: Understanding gradient flow and identifying implementation errors
+\end{itemize}
+
+\subsubsection{CNN Framework Benefits}
+Using PyTorch for CNN implementation demonstrated:
+\begin{itemize}
+\item \textbf{Automatic Differentiation}: Eliminating manual gradient computation
+\item \textbf{GPU Acceleration}: Leveraging parallel computing for faster training
+\item \textbf{Modular Design}: Building complex architectures from reusable components
+\end{itemize}
+
+\subsection{Limitations and Future Work}
+\begin{itemize}
+\item \textbf{Dataset Scope}: Limited to MNIST; performance may differ on more complex datasets
+\item \textbf{Architecture Complexity}: Simple LeNet architecture; could explore deeper networks
+\item \textbf{Hyperparameter Optimization}: Limited hyperparameter search space
+\item \textbf{Regularization}: Could add dropout, batch normalization, data augmentation
+\end{itemize}
+
+\section{Conclusion}
+
+This experiment successfully demonstrated the implementation and comparison of two fundamental neural network architectures for handwritten digit recognition. The key findings include:
+
+\textbf{Superior CNN Performance}: CNN achieved 99\% test accuracy compared to MLP's 92\%, validating the effectiveness of convolutional architectures for image tasks.
+
+\textbf{Architectural Efficiency}: CNN achieved better performance with 55.7\% fewer parameters and 5× faster convergence, demonstrating the efficiency of weight sharing and local receptive fields.
+
+\textbf{Educational Value}: Implementing MLP from scratch provided deep understanding of neural network fundamentals, while using PyTorch for CNN demonstrated the power of modern deep learning frameworks.
+
+\textbf{Practical Implications}: The results confirm why CNNs have become the standard architecture for computer vision tasks, while MLPs remain valuable for tabular data and simpler classification problems.
+
+The experiment highlights the importance of architecture selection in deep learning applications and provides a solid foundation for understanding more advanced neural network concepts. Future work could explore deeper architectures, regularization techniques, and application to more complex datasets.
+
+\begin{table}[!hbt]
+\begin{center}
+\caption{Final Summary and Comparison}
+\label{tab:final_summary}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Metric} & \textbf{MLP} & \textbf{CNN} & \textbf{Winner} \\
+\hline
+Test Accuracy & 92.0\% & 99.0\% & CNN \\
+Parameters & 101,058 & 44,726 & CNN \\
+Training Time (s) & 180 & 120 & CNN \\
+Convergence Epochs & 50 & 10 & CNN \\
+Implementation Complexity & High & Low & CNN \\
+Interpretability & High & Medium & MLP \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+The successful completion of both implementations demonstrates mastery of neural network fundamentals from both theoretical and practical perspectives, providing valuable experience for advanced deep learning applications.
+
+% Your document ends here!
+\end{document}

@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(wget:*)",
+      "Bash(source:*)",
+      "Bash(conda activate:*)",
+      "Bash(python:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(conda env remove:*)",
+      "Bash(conda create:*)",
+      "Bash(conda install:*)",
+      "Bash(conda env list:*)",
+      "Bash(pip install:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

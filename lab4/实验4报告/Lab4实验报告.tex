@@ -1,0 +1,377 @@
+\documentclass[journal, a4paper]{IEEEtran}
+
+% some very useful LaTeX packages include:
+\usepackage{graphicx}   % Required for graphics, photos, etc.
+\usepackage{url}        % Better support for handling and breaking URLs
+\usepackage{amsmath}    % Popular package that provides many helpful commands for dealing with mathematics
+\usepackage{booktabs}   % For professional quality tables
+\usepackage{algorithm}  % For algorithms
+\usepackage{algorithmic} % For algorithmic environment
+\usepackage{subfigure}  % For subfigures
+\usepackage{multirow}   % For multi-row table cells
+
+% *** Do not adjust lengths that control margins, column widths, etc. ***
+% *** Do not use packages that alter fonts (such as pslatex).         ***
+
+% Your document starts here!
+\begin{document}
+\begin{titlepage}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % Defines a new command for the horizontal lines, change thickness here
+
+\center % Center everything on the page
+
+%----------------------------------------------------------------------------------------
+%	LOGO SECTION
+%----------------------------------------------------------------------------------------
+
+~\\[1cm]
+\includegraphics{SCUT.png}\\[2cm] % Include a department/university logo - this will require the graphicx package
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\HRule \\[1cm]
+{ \huge \bfseries The Experiment Report of \textit{Machine Learning} }\\[0.6cm] % Title of your document
+\HRule \\[2cm]
+
+%----------------------------------------------------------------------------------------
+%	HEADING SECTIONS
+%----------------------------------------------------------------------------------------
+
+\textsc{\LARGE \textbf{School:} School of Software Engineering}\\[1cm]
+\textsc{\LARGE \textbf{Subject:} Software Engineering}\\[2cm]
+
+%----------------------------------------------------------------------------------------
+%	AUTHOR SECTION
+%----------------------------------------------------------------------------------------
+
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft} \large
+\emph{Author:}\\
+Yuming % Your name
+\end{flushleft}
+\end{minipage}
+~
+\begin{minipage}{0.4\textwidth}
+\begin{flushright} \large
+\emph{Supervisor:} \\
+Minkui Tan % Supervisor's Name
+\end{flushright}
+\end{minipage}\\[2cm]
+
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft} \large
+\emph{Student ID:}\\
+202330550601
+\end{flushleft}
+\end{minipage}
+~
+\begin{minipage}{0.4\textwidth}
+\begin{flushright} \large
+\emph{Grade:} \\
+Undergraduate
+\end{flushright}
+\end{minipage}\\[2cm]
+
+%----------------------------------------------------------------------------------------
+%	DATE SECTION
+%----------------------------------------------------------------------------------------
+
+{\large \today}\\[2cm] % Date, change the \today to a set date if you want to be precise
+
+%----------------------------------------------------------------------------------------
+
+\vfill % Fill the rest of the page with whitespace
+
+\end{titlepage}
+
+% Define document title and author
+\title{Face Detection Based on AdaBoost Algorithm}
+\maketitle
+
+% Write abstract here
+\begin{abstract}
+This experiment implements a face detection system based on the AdaBoost algorithm using Haar features. We developed a complete face detection pipeline including data preprocessing, Haar feature extraction, AdaBoost training, and performance evaluation. Using the Extended Yale B face dataset and custom non-face patterns, we trained an AdaBoost classifier and compared its performance with OpenCV's pre-trained CascadeClassifier. Our implementation achieved 93.46\% F1-score with 100\% recall rate, demonstrating the effectiveness of AdaBoost in face detection applications. The experiment provides insights into the trade-offs between detection completeness and accuracy, and validates the practical utility of implementing face detection systems from scratch.
+\end{abstract}
+
+% Each section begins with a \section{title} command
+\section{Introduction}
+\PARstart{F}{ace} detection is a fundamental computer vision task with wide applications in security systems, human-computer interaction, and image processing. Among various approaches, the AdaBoost algorithm combined with Haar features has emerged as one of the most successful methods for real-time face detection.
+
+AdaBoost (Adaptive Boosting) is an ensemble learning method that combines multiple weak classifiers to create a strong classifier. When applied to face detection, AdaBoost iteratively selects Haar features that best separate face and non-face patterns, creating an effective cascade of simple classifiers.
+
+This experiment aims to:
+\begin{itemize}
+\item Understand and implement the AdaBoost algorithm for face detection
+\item Extract and evaluate Haar features for face classification
+\item Train a face detector using Extended Yale B dataset
+\item Compare performance with OpenCV's pre-trained face detector
+\item Analyze the trade-offs between detection accuracy and completeness
+\end{itemize}
+
+\section{Methods and Theory}
+
+\subsection{AdaBoost Algorithm}
+AdaBoost is an adaptive boosting algorithm that combines multiple weak learners to create a strong classifier. The algorithm works as follows:
+
+\begin{enumerate}
+\item Initialize sample weights: $D_1(i) = 1/n$ for all $n$ samples
+\item For each iteration $t = 1, \ldots, T$:
+\begin{itemize}
+\item Train weak classifier $h_t$ on weighted training set
+\item Calculate weighted error: $\epsilon_t = \sum_{i=1}^{n} D_t(i) \cdot [h_t(x_i) \neq y_i]$
+\item Calculate classifier weight: $\alpha_t = \frac{1}{2}\ln\left(\frac{1-\epsilon_t}{\epsilon_t}\right)$
+\item Update sample weights: $D_{t+1}(i) = \frac{D_t(i) \cdot \exp(-\alpha_t y_i h_t(x_i))}{Z_t}$
+\end{itemize}
+\end{enumerate}
+
+The final strong classifier combines all weak classifiers:
+\begin{equation}
+H(x) = \text{sign}\left(\sum_{t=1}^{T} \alpha_t h_t(x)\right)
+\end{equation}
+
+\subsection{Haar Features}
+Haar features are rectangular features calculated using integral images for efficient computation. The basic types include:
+
+\begin{itemize}
+\item \textbf{Two-rectangle features}: Detect edges
+\item \textbf{Three-rectangle features}: Detect lines
+\item \textbf{Four-rectangle features}: Detect specific patterns
+\end{itemize}
+
+The feature value is computed as:
+\begin{equation}
+\text{Feature} = \sum_{i \in \text{white}} I(i) - \sum_{j \in \text{black}} I(j)
+\end{equation}
+
+where $I(i)$ represents the pixel intensity in region $i$.
+
+\subsection{Integral Images}
+Integral images enable O(1) computation of rectangular features:
+\begin{equation}
+II(x,y) = \sum_{x' \leq x, y' \leq y} I(x',y')
+\end{equation}
+
+The sum of any rectangle can be computed using four corner values:
+\begin{equation}
+\text{Sum}(A,B,C,D) = II(A) - II(B) - II(C) + II(D)
+\end{equation}
+
+\subsection{Evaluation Metrics}
+We use standard classification metrics:
+\begin{itemize}
+\item \textbf{Precision}: $P = \frac{TP}{TP + FP}$
+\item \textbf{Recall}: $R = \frac{TP}{TP + FN}$
+\item \textbf{F1-Score}: $F_1 = 2 \cdot \frac{P \cdot R}{P + R}$
+\end{itemize}
+
+where TP, FP, FN represent true positives, false positives, and false negatives respectively.
+
+\section{Experiments}
+
+\subsection{Dataset}
+We used two datasets for this experiment:
+
+\subsubsection{Face Dataset}
+\begin{itemize}
+\item \textbf{Source}: Extended Yale B face dataset
+\item \textbf{Samples}: 165 face images (15 people × 11 images/person)
+\item \textbf{Format}: 24×24 pixel grayscale images
+\item \textbf{Preprocessing}: Resized from original size to 24×24
+\end{itemize}
+
+\subsubsection{Non-face Dataset}
+\begin{itemize}
+\item \textbf{Source}: Custom generated geometric patterns
+\item \textbf{Samples}: 100 non-face images
+\item \textbf{Types}: Stripes, checkerboards, circles, triangles, noise
+\item \textbf{Format}: 24×24 pixel grayscale images
+\end{itemize}
+
+\begin{table}[!hbt]
+\begin{center}
+\caption{Dataset Statistics}
+\label{tab:dataset_stats}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Class} & \textbf{Train} & \textbf{Test} & \textbf{Total} \\
+\hline
+Faces & 115 & 50 & 165 \\
+Non-faces & 70 & 30 & 100 \\
+\hline
+\textbf{Total} & \textbf{185} & \textbf{80} & \textbf{265} \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{Implementation}
+\subsubsection{Data Preprocessing}
+\begin{enumerate}
+\item \textbf{Face Sampling}: Randomly selected 15 people, 11 images each
+\item \textbf{Non-face Generation}: Created 100 geometric patterns
+\item \textbf{Image Resizing}: All images resized to 24×24 pixels
+\item \textbf{Data Splitting}: 70\% training, 30\% testing with stratification
+\end{enumerate}
+
+\subsubsection{Haar Feature Extraction}
+\begin{enumerate}
+\item \textbf{Feature Generation}: Created 2000 Haar features
+\item \textbf{Feature Types}: 2-rectangle, 3-rectangle, 4-rectangle features
+\item \textbf{Integral Images}: Computed for efficient feature calculation
+\item \textbf{Feature Normalization}: Scaled to [0,1] range
+\end{enumerate}
+
+\subsubsection{AdaBoost Training}
+\begin{enumerate}
+\item \textbf{Weak Classifier}: Decision stumps (single-level decision trees)
+\item \textbf{Training Rounds}: 50 iterations
+\item \textbf{Early Stopping}: Converged at round 7 (0\% training error)
+\item \textbf{Model Selection}: Best model based on validation performance
+\end{enumerate}
+
+\subsection{Experimental Results}
+
+\subsubsection{Training Convergence}
+The AdaBoost algorithm converged rapidly, achieving 0\% training error in just 7 rounds. This indicates that the selected Haar features were highly discriminative for the given dataset.
+
+\begin{table}[!hbt]
+\begin{center}
+\caption{Training Progress}
+\label{tab:training_progress}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Round} & \textbf{Training Error} & \textbf{Validation Error} \\
+\hline
+1 & 0.438 & 0.425 \\
+5 & 0.081 & 0.087 \\
+\textbf{7} & \textbf{0.000} & \textbf{0.087} \\
+50 & 0.000 & 0.087 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsubsection{Performance Comparison}
+We compared our AdaBoost implementation with OpenCV's pre-trained CascadeClassifier on the same validation set.
+
+\begin{table}[!hbt]
+\begin{center}
+\caption{Performance Comparison}
+\label{tab:performance_comparison}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\textbf{Method} & \textbf{Prec} & \textbf{Rec} & \textbf{F1} & \textbf{TP} & \textbf{FP} \\
+\hline
+AdaBoost & 87.72\% & 100\% & 93.46\% & 50 & 7 \\
+OpenCV & 100\% & 82\% & 90.29\% & 41 & 0 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{figure}[!hbt]
+\begin{center}
+\includegraphics[width=\columnwidth]{training_curves}
+\caption{AdaBoost training curves showing precision and recall over 50 rounds. The model achieved stable performance after 7 rounds.}
+\label{fig:training_curves}
+\end{center}
+\end{figure}
+
+\subsubsection{Confusion Matrix Analysis}
+\begin{table}[!hbt]
+\begin{center}
+\caption{Detailed Confusion Matrices}
+\label{tab:confusion_matrices}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Our Model} & \textbf{Face} & \textbf{Non-face} \\
+\hline
+Face & 50 & 0 \\
+Non-face & 7 & 23 \\
+\hline
+\end{tabular}
+\hspace{0.5cm}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{OpenCV} & \textbf{Face} & \textbf{Non-face} \\
+\hline
+Face & 41 & 9 \\
+Non-face & 0 & 30 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\section{Discussion}
+
+\subsection{Algorithm Effectiveness}
+The AdaBoost algorithm demonstrated excellent effectiveness in face detection:
+\begin{itemize}
+\item \textbf{Rapid Convergence}: Achieved perfect training accuracy in 7 rounds
+\item \textbf{High Recall}: 100\% recall rate ensures no missed faces
+\item \textbf{Reasonable Precision}: 87.72\% precision with manageable false positives
+\end{itemize}
+
+\subsection{Comparison with OpenCV}
+The performance comparison reveals interesting trade-offs:
+
+\textbf{Our Implementation}:
+\begin{itemize}
+\item \textbf{Advantage}: Perfect recall (no missed faces)
+\item \textbf{Advantage}: Higher F1-score (93.46\% vs 90.29\%)
+\item \textbf{Disadvantage}: Lower precision due to 7 false positives
+\end{itemize}
+
+\textbf{OpenCV CascadeClassifier}:
+\begin{itemize}
+\item \textbf{Advantage}: Perfect precision (no false positives)
+\item \textbf{Disadvantage}: Lower recall (82\%, 9 missed faces)
+\item \textbf{Disadvantage}: Lower overall F1-score
+\end{itemize}
+
+\subsection{Practical Implications}
+The choice between these approaches depends on application requirements:
+\begin{itemize}
+\item \textbf{Security Applications}: Our approach (high recall) preferred
+\item \textbf{User Experience}: OpenCV (high precision) preferred
+\item \textbf{Computational Resources}: Both approaches are suitable for real-time detection
+\end{itemize}
+
+\subsection{Feature Analysis}
+The success with only 2000 Haar features suggests that:
+\begin{itemize}
+\item Haar features are highly effective for face detection
+\item The Extended Yale B dataset provides good training examples
+\item AdaBoost effectively selects the most discriminative features
+\end{itemize}
+
+\section{Conclusion}
+
+This experiment successfully implemented a face detection system based on AdaBoost algorithm and Haar features. The key achievements include:
+
+\begin{itemize}
+\item \textbf{Complete Implementation}: End-to-end face detection pipeline
+\item \textbf{Superior Performance}: F1-score of 93.46\%, exceeding OpenCV baseline
+\item \textbf{Perfect Recall}: 100\% detection rate with no missed faces
+\item \textbf{Rapid Training}: Convergence in just 7 rounds
+\item \textbf{Practical Utility}: Demonstrated real-world applicability
+\end{itemize}
+
+The experiment validates the effectiveness of AdaBoost for face detection and provides insights into the trade-offs between different implementation approaches. Our implementation's superior F1-score demonstrates the value of customized training for specific datasets.
+
+Future work could explore:
+\begin{itemize}
+\item Integration with more sophisticated weak classifiers
+\item Multi-scale face detection using image pyramids
+\item Real-time video face detection applications
+\item Extension to other object detection tasks
+\item Comparison with deep learning approaches
+\end{itemize}
+
+The experiment provides a solid foundation for understanding classical face detection methods and their role in the broader landscape of computer vision systems.
+
+% Your document ends here!
+\end{document}
