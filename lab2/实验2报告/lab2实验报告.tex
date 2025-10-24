@@ -46,7 +46,7 @@
 \begin{minipage}{0.4\textwidth}
 \begin{flushleft} \large
 \emph{Author:}\\
-Yuming % Your name
+Yuming Jiang% Your name
 \end{flushleft}
 \end{minipage}
 ~
@@ -80,32 +80,63 @@ Undergraduate
 \end{titlepage}
 
 % Define document title and author
-\title{Experiment 2: Linear Classification Algorithms Comparison and Analysis}
+\title{Experiment 2: Classification Algorithm Comparison on Breast Cancer and Iris Datasets}
 \author{Your Name \\ School of Software Engineering \\ South China University of Technology}
 \maketitle
 
 % Write abstract here
 \begin{abstract}
-This experiment presents a comprehensive comparison of linear classification algorithms including Linear Support Vector Machine (SVM), RBF Kernel SVM, and Logistic Regression. Using a custom-generated imbalanced dataset with 1,000 samples distributed across two classes (40\% Class A, 60\% Class B), we evaluate each algorithm's performance in terms of accuracy, training efficiency, and suitability for different scenarios.
+This experiment presents a comprehensive comparison of three classification algorithms: Logistic Regression, Linear Support Vector Machine (SVM), and RBF Kernel SVM. The evaluation is conducted on two standard benchmark datasets from the LIBSVM repository: the Breast Cancer dataset (683 samples, 10 features, binary classification) and the Iris dataset (150 samples, 4 features, multi-class classification).
 
-The experimental results demonstrate that Logistic Regression achieves the highest accuracy (96.10\%) with the fastest training speed (1.8ms), making it optimal for large-scale applications. Linear SVM shows competitive performance (95.58\%) with good scalability, while RBF Kernel SVM provides the ability to capture non-linear relationships (95.56\% accuracy) at the cost of increased computational complexity. This study offers practical insights for algorithm selection in real-world classification tasks.
+The experimental methodology includes rigorous data preprocessing with feature standardization, hyperparameter optimization using 5-fold cross-validation with grid search, and comprehensive performance evaluation using multiple metrics including accuracy, confusion matrices, and ROC curves. Data visualization techniques including scatter plots and feature distribution histograms provide insights into dataset characteristics.
+
+The results demonstrate that algorithm performance varies by dataset characteristics. On the Breast Cancer dataset, Logistic Regression achieves the highest test accuracy (96.10\%) with a cross-validation score of 97.49\%. On the Iris dataset, RBF Kernel SVM performs best (95.56\%) with a CV score of 97.14\%. The study provides practical guidelines for algorithm selection based on dataset linearity, computational constraints, and performance requirements.
 \end{abstract}
 
 % Each section begins with a \section{title} command
 \section{Introduction}
-\lettrine{C}{lassification} is a fundamental task in machine learning that involves assigning input data to predefined categories or classes. In recent years, the development of robust and efficient classification algorithms has become increasingly important for applications ranging from spam detection and medical diagnosis to image recognition and sentiment analysis.
+\lettrine{C}{lassification} algorithms form the foundation of supervised machine learning, enabling systems to automatically categorize data into predefined classes. The selection of appropriate classification algorithms is critical for real-world applications ranging from medical diagnosis to pattern recognition. While numerous classification methods exist, understanding their comparative performance on different types of data remains essential for practitioners.
 
-Among the various classification approaches, linear classifiers have gained significant attention due to their simplicity, interpretability, and computational efficiency.
+This experiment focuses on three fundamental yet powerful classification algorithms: Logistic Regression, Linear SVM, and RBF Kernel SVM. These methods represent different approaches to the classification problem---probabilistic modeling, maximum margin optimization, and non-linear kernel methods, respectively. By evaluating these algorithms on both binary and multi-class classification tasks, we aim to understand their relative strengths and optimal application scenarios.
 
-The primary motivation for this experiment stems from the practical need to understand the comparative advantages and limitations of different linear classification algorithms. While theoretical foundations provide insights into algorithm behavior, real-world performance can vary significantly based on dataset characteristics, imbalanced class distributions, and computational constraints. This experiment aims to bridge the gap between theoretical understanding and practical application by systematically evaluating three popular classification algorithms: Linear SVM, RBF Kernel SVM, and Logistic Regression.
+\subsection{Motivation}
+The primary motivation stems from practical considerations in algorithm selection. While theoretical foundations provide important insights, empirical performance on real datasets often reveals nuances not apparent from theory alone. The Breast Cancer and Iris datasets, as standard benchmarks in machine learning, provide excellent test cases for comparing linear and non-linear classification methods.
 
-Our expected contributions include: (1) providing empirical performance comparisons on imbalanced datasets, which are common in real-world scenarios; (2) analyzing the trade-offs between accuracy and computational efficiency; and (3) offering practical guidelines for algorithm selection in different application contexts. The findings from this study will help practitioners make informed decisions when choosing classification algorithms for their specific requirements.
+\subsection{Objectives}
+This experiment aims to:
+\begin{enumerate}
+\item Implement and evaluate three classification algorithms using proper hyperparameter optimization
+\item Compare performance on binary classification (Breast Cancer) and multi-class classification (Iris) tasks
+\item Analyze the impact of dataset characteristics (linearity, dimensionality, class distribution) on algorithm performance
+\item Provide data-driven recommendations for algorithm selection in practical applications
+\item Demonstrate comprehensive evaluation methodology including visualization and statistical analysis
+\end{enumerate}
 
 \section{Methods and Theory}
-This section provides a comprehensive theoretical foundation for the three classification algorithms implemented in this experiment.
+
+\subsection{Logistic Regression}
+Logistic Regression is a probabilistic linear classifier that models the posterior probability of class membership using the logistic (sigmoid) function:
+
+\begin{equation}
+P(y=1|\mathbf{x}) = \sigma(\mathbf{w}^T\mathbf{x} + b) = \frac{1}{1 + \exp(-\mathbf{w}^T\mathbf{x} - b)}
+\end{equation}
+
+where $\mathbf{w}$ is the weight vector, $b$ is the bias term, and $\sigma(\cdot)$ is the sigmoid function. For multi-class problems, the model is extended using the softmax function:
+
+\begin{equation}
+P(y=k|\mathbf{x}) = \frac{\exp(\mathbf{w}_k^T\mathbf{x} + b_k)}{\sum_{j=1}^{K}\exp(\mathbf{w}_j^T\mathbf{x} + b_j)}
+\end{equation}
+
+The parameters are learned by maximizing the log-likelihood with L2 regularization:
+
+\begin{equation}
+\max_{\mathbf{w}, b} \sum_{i=1}^{n} \log P(y_i|\mathbf{x}_i) - \frac{1}{2C}\|\mathbf{w}\|^2
+\end{equation}
+
+where $C$ is the inverse regularization strength.
 
 \subsection{Linear Support Vector Machine}
-Linear SVM is a maximum margin classifier that finds the optimal hyperplane to separate data points from different classes. Given a training dataset $\{(\mathbf{x}_i, y_i)\}_{i=1}^n$ where $\mathbf{x}_i \in \mathbb{R}^d$ and $y_i \in \{-1, +1\}$, the primal optimization problem can be formulated as:
+Linear SVM finds the maximum margin hyperplane separating different classes. The optimization problem is formulated as:
 
 \begin{equation}
 \min_{\mathbf{w}, b, \boldsymbol{\xi}} \frac{1}{2}\|\mathbf{w}\|^2 + C\sum_{i=1}^{n}\xi_i
@@ -116,16 +147,16 @@ subject to:
 y_i(\mathbf{w}^T\mathbf{x}_i + b) \geq 1 - \xi_i, \quad \xi_i \geq 0, \quad i = 1, \ldots, n
 \end{equation}
 
-where $\mathbf{w}$ is the weight vector, $b$ is the bias term, $C$ is the regularization parameter, and $\xi_i$ are slack variables allowing for soft-margin classification.
+where $\xi_i$ are slack variables allowing for soft-margin classification, and $C$ controls the trade-off between maximizing the margin and minimizing classification errors.
 
 \subsection{RBF Kernel SVM}
-For non-linear classification problems, SVM can be extended using kernel functions. The Radial Basis Function (RBF) kernel is defined as:
+For non-linear classification, SVM can be extended using kernel functions. The Radial Basis Function (RBF) kernel implicitly maps data to an infinite-dimensional feature space:
 
 \begin{equation}
 K(\mathbf{x}_i, \mathbf{x}_j) = \exp\left(-\gamma \|\mathbf{x}_i - \mathbf{x}_j\|^2\right)
 \end{equation}
 
-where $\gamma$ is the kernel parameter that controls the influence of each training example. The dual optimization problem becomes:
+where $\gamma$ controls the influence radius of each training example. The dual optimization problem becomes:
 
 \begin{equation}
 \max_{\boldsymbol{\alpha}} \sum_{i=1}^{n}\alpha_i - \frac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n}\alpha_i\alpha_j y_i y_j K(\mathbf{x}_i, \mathbf{x}_j)
@@ -136,179 +167,423 @@ subject to:
 0 \leq \alpha_i \leq C, \quad \sum_{i=1}^{n}\alpha_i y_i = 0
 \end{equation}
 
-\subsection{Logistic Regression}
-Logistic Regression models the probability of a sample belonging to a particular class using the logistic function:
-
-\begin{equation}
-P(y=1|\mathbf{x}) = \frac{1}{1 + \exp(-\mathbf{w}^T\mathbf{x} - b)}
-\end{equation}
-
-The model parameters are estimated by maximizing the log-likelihood:
-
-\begin{equation}
-\max_{\mathbf{w}, b} \sum_{i=1}^{n} \big[ y_i \log P(y_i=1|\mathbf{x}_i) + (1-y_i) \log(1-P(y_i=1|\mathbf{x}_i)) \big] - \lambda \|\mathbf{w}\|^2
-\end{equation}
-
-where $\lambda$ is the regularization parameter to prevent overfitting.
-
 \section{Experiments}
 
-\subsection{Dataset}
-The experiment utilized a custom-generated synthetic dataset specifically designed to evaluate classifier performance under imbalanced conditions. The dataset characteristics are summarized in Table~\ref{tab:dataset_info}.
+\subsection{Datasets}
+
+\subsubsection{Breast Cancer Dataset}
+The Breast Cancer dataset, obtained from the LIBSVM repository, is a binary classification problem for diagnosing breast tumors as benign or malignant based on cell characteristics.
 
 \begin{table}[!hbt]
 \centering
-\caption{Dataset Characteristics}
-\label{tab:dataset_info}
+\caption{Breast Cancer Dataset Characteristics}
+\label{tab:breast_cancer_info}
 \begin{tabular}{lc}
 \toprule
 Characteristic & Value \\
 \midrule
-Total samples & 1,000 \\
-Training samples & 673 (67.3\%) \\
-Testing samples & 327 (32.7\%) \\
-Class A samples & 400 (40\%) \\
-Class B samples & 600 (60\%) \\
-Class imbalance ratio & 3:2 \\
-Feature dimensions & 2 \\
-Data type & Synthetic with Gaussian distribution \\
+Total samples & 683 \\
+Training samples & 478 (70\%) \\
+Testing samples & 205 (30\%) \\
+Benign (Class 0) & 444 (65.0\%) \\
+Malignant (Class 1) & 239 (35.0\%) \\
+Number of features & 10 \\
+Feature type & Numerical (scaled) \\
+Task type & Binary classification \\
+Data source & LIBSVM repository \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The dataset was generated using a controlled random process to ensure reproducibility while maintaining realistic class separation challenges. Class A samples were drawn from a Gaussian distribution centered at different coordinates than Class B samples, creating overlapping but distinguishable clusters. This setup simulates real-world scenarios where classes are not perfectly separable.
+The dataset exhibits moderate class imbalance (approximately 2:1 ratio), which is common in medical diagnosis problems where positive cases are less frequent than negative cases.
 
-\subsection{Implementation}
-All algorithms were implemented using Python 3.12.5 with the scikit-learn library. The experimental setup included the following components:
-
-\textbf{Environment Configuration:}
-\begin{itemize}
-\item Python version: 3.12.5
-\item Primary libraries: scikit-learn, numpy, matplotlib, pandas
-\item Hardware: Standard computing environment
-\item Random seed: Fixed for reproducibility (seed=42)
-\end{itemize}
-
-\textbf{Data Preprocessing:}
-The dataset was standardized using StandardScaler to ensure zero mean and unit variance for all features. This preprocessing step is crucial for algorithms like SVM and Logistic Regression, which are sensitive to feature scaling.
-
-\textbf{Algorithm Parameters:}
-\begin{itemize}
-\item Linear SVM: $C=1.0$, default tolerance
-\item RBF Kernel SVM: $C=1.0$, $\gamma=1/(n\_features \cdot Var(X))$
-\item Logistic Regression: $C=1.0$, L2 regularization, saga solver
-\end{itemize}
-
-\textbf{Evaluation Metrics:}
-Performance was evaluated using multiple metrics to provide a comprehensive assessment:
-\begin{itemize}
-\item Accuracy: Overall classification correctness
-\item Training time: Computational efficiency measure
-\item Confusion matrix: Detailed error analysis
-\item Classification report: Precision, recall, and F1-score per class
-\end{itemize}
-
-The experimental procedure followed a systematic approach:
-\begin{enumerate}
-\item Data generation and splitting (70/30 train-test split)
-\item Data preprocessing and standardization
-\item Model training with parameter initialization
-\item Performance evaluation on test set
-\item Results compilation and comparative analysis
-\end{enumerate}
-
-\section{Results and Analysis}
-The experimental results reveal distinct performance characteristics for each algorithm, providing valuable insights into their relative strengths and limitations.
-
-\subsection{Performance Comparison}
-Table~\ref{tab:performance_comparison} presents the comprehensive performance metrics for all three algorithms on the test dataset.
+\subsubsection{Iris Dataset}
+The Iris dataset is a classic multi-class classification problem involving three species of iris flowers (Setosa, Versicolor, Virginica) based on sepal and petal measurements.
 
 \begin{table}[!hbt]
 \centering
-\caption{Algorithm Performance Comparison}
-\label{tab:performance_comparison}
-\begin{tabular}{lccc}
+\caption{Iris Dataset Characteristics}
+\label{tab:iris_info}
+\begin{tabular}{lc}
 \toprule
-Algorithm & Accuracy (\%) & Training Time (ms) & Scalability \\
+Characteristic & Value \\
 \midrule
-Linear SVM & 95.58 & 2.1 & High \\
-RBF Kernel SVM & 95.56 & 18.4 & Medium \\
-Logistic Regression & 96.10 & 1.8 & Very High \\
+Total samples & 150 \\
+Training samples & 105 (70\%) \\
+Testing samples & 45 (30\%) \\
+Setosa (Class 0) & 50 (33.3\%) \\
+Versicolor (Class 1) & 50 (33.3\%) \\
+Virginica (Class 2) & 50 (33.3\%) \\
+Number of features & 4 \\
+Feature type & Numerical (scaled) \\
+Task type & Multi-class classification \\
+Data source & LIBSVM repository \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The results demonstrate that Logistic Regression achieved the highest classification accuracy at 96.10\%, followed closely by Linear SVM at 95.58\%. The RBF Kernel SVM achieved 95.56\% accuracy, demonstrating that the non-linear relationships in this dataset were minimal, as the linear and non-linear methods performed similarly.
+The dataset is perfectly balanced with equal representation of all three classes, making it ideal for evaluating multi-class classification performance without class imbalance considerations.
 
-\subsection{Computational Efficiency Analysis}
-Training time analysis reveals significant differences in computational complexity:
+\subsection{Implementation Details}
+
+\subsubsection{Environment Configuration}
 \begin{itemize}
-\item Logistic Regression emerged as the most efficient, requiring only 1.8ms for training
-\item Linear SVM showed competitive performance with 2.1ms training time
-\item RBF Kernel SVM required substantially more time at 18.4ms, approximately 8-10 times longer than the linear methods
+\item Programming Language: Python 3.12.5
+\item Machine Learning Library: scikit-learn 1.7.2
+\item Numerical Computing: NumPy 2.3.3
+\item Visualization: Matplotlib 3.10.6, Seaborn
+\item Development Environment: Jupyter Notebook
+\item Random Seed: 42 (for reproducibility)
 \end{itemize}
 
-This computational overhead in RBF Kernel SVM stems from the kernel trick's computational complexity, which grows quadratically with the number of training samples. For large-scale applications, this difference becomes increasingly significant.
+\subsubsection{Data Preprocessing}
+\textbf{Loading:} Datasets were loaded using \texttt{sklearn.datasets.load\_svmlight\_file} and converted from sparse to dense format.
 
-\subsection{Classification Quality Assessment}
-Beyond accuracy metrics, the classification quality was analyzed through confusion matrices and class-specific performance measures. Key observations include:
-
-\textbf{Linear SVM:} Demonstrated consistent performance across both classes with minimal bias toward the majority class. The maximum margin principle provided good generalization capability.
-
-\textbf{RBF Kernel SVM:} Showed slightly better performance on boundary cases where non-linear separation existed, but the improvement was marginal due to the predominantly linear nature of the dataset.
-
-\textbf{Logistic Regression:} Exhibited the best balance between precision and recall for both classes, benefiting from the probabilistic framework and smooth optimization landscape.
-
-\subsection{Scalability Assessment}
-The scalability characteristics were evaluated based on algorithm complexity and empirical performance:
-
+\textbf{Label Transformation:}
 \begin{itemize}
-\item \textbf{Linear SVM:} $O(n \cdot d)$ complexity for training, where $n$ is the number of samples and $d$ is the feature dimension. Excellent scalability to large datasets.
-\item \textbf{RBF Kernel SVM:} $O(n^2 \cdot d)$ complexity due to kernel matrix computation. Limited scalability for large datasets.
-\item \textbf{Logistic Regression:} $O(n \cdot d \cdot iterations)$ complexity. Best scalability among the three methods, especially with efficient optimization algorithms.
+\item Breast Cancer: Labels converted from \{2, 4\} to \{0, 1\}
+\item Iris: Labels converted from \{1, 2, 3\} to \{0, 1, 2\}
 \end{itemize}
 
-\section{Conclusion}
-This experiment provides a comprehensive empirical comparison of three fundamental classification algorithms on an imbalanced binary classification task. The results offer several important insights and practical guidelines for real-world machine learning applications.
+\textbf{Feature Standardization:} Applied \texttt{StandardScaler} to ensure zero mean and unit variance:
+\begin{equation}
+z = \frac{x - \mu}{\sigma}
+\end{equation}
+
+This preprocessing is crucial for SVM and Logistic Regression, which are sensitive to feature scales.
+
+\textbf{Data Splitting:} Stratified 70-30 train-test split to maintain class distribution.
+
+\subsubsection{Hyperparameter Optimization}
+All algorithms were optimized using GridSearchCV with 5-fold cross-validation:
+
+\textbf{Logistic Regression:}
+\begin{itemize}
+\item C: [0.1, 1, 10]
+\item Penalty: ['l2']
+\item Solver: ['liblinear', 'lbfgs']
+\item Max iterations: 1000
+\end{itemize}
+
+\textbf{Linear SVM:}
+\begin{itemize}
+\item C: [0.1, 1, 10]
+\item Kernel: ['linear']
+\item Probability: True (for ROC curves)
+\end{itemize}
+
+\textbf{RBF Kernel SVM:}
+\begin{itemize}
+\item C: [1, 10]
+\item Gamma: ['scale', 0.1]
+\item Kernel: ['rbf']
+\item Probability: True
+\end{itemize}
+
+\subsubsection{Evaluation Metrics}
+\begin{itemize}
+\item \textbf{Accuracy:} Overall classification correctness
+\item \textbf{Cross-validation score:} Mean accuracy across 5 folds
+\item \textbf{Confusion Matrix:} Detailed breakdown of predictions
+\item \textbf{Precision, Recall, F1-score:} Per-class performance metrics
+\item \textbf{ROC Curve and AUC:} For binary classification (Breast Cancer)
+\end{itemize}
+
+\subsection{Data Visualization}
+Comprehensive visualization was performed to understand dataset characteristics:
+
+\begin{itemize}
+\item \textbf{Scatter plots:} Visualizing class separation in 2D feature space
+\item \textbf{Feature distribution histograms:} Analyzing feature distributions across classes (particularly for Breast Cancer dataset as per experiment requirements)
+\item \textbf{Confusion matrices:} Heatmaps showing classification results
+\item \textbf{ROC curves:} Evaluating binary classifier performance
+\end{itemize}
+
+\section{Results and Analysis}
+
+\subsection{Breast Cancer Dataset Results}
+
+\subsubsection{Overall Performance}
+
+\begin{table}[!hbt]
+\centering
+\caption{Breast Cancer Dataset Performance}
+\label{tab:bc_performance}
+\small
+\begin{tabular}{lccc}
+\toprule
+Algorithm & Acc. & CV & Best Params \\
+\midrule
+Logistic Reg. & \textbf{96.10} & \textbf{97.49} & C=0.1 \\
+Linear SVM & 95.61 & 97.49 & C=0.1 \\
+RBF SVM & 95.61 & 96.45 & C=1, $\gamma$=scale \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Logistic Regression achieved the highest test accuracy (96.10\%) on the Breast Cancer dataset, demonstrating excellent performance on this linearly separable binary classification task. The high cross-validation score (97.49\%) shared by both Logistic Regression and Linear SVM indicates that linear models are well-suited for this dataset.
+
+\subsubsection{Detailed Classification Metrics}
+The classification reports reveal strong performance across both classes:
+
+\begin{table}[!hbt]
+\centering
+\caption{Breast Cancer - Logistic Regression Detailed Metrics}
+\label{tab:bc_lr_details}
+\begin{tabular}{lcccc}
+\toprule
+Class & Precision & Recall & F1-Score & Support \\
+\midrule
+Benign (0) & 0.97 & 0.98 & 0.97 & 133 \\
+Malignant (1) & 0.95 & 0.92 & 0.94 & 72 \\
+\midrule
+Macro Avg & 0.96 & 0.95 & 0.95 & 205 \\
+Weighted Avg & 0.96 & 0.96 & 0.96 & 205 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{ROC Curve Analysis}
+ROC curves were generated for all three algorithms on the Breast Cancer dataset. The Area Under Curve (AUC) scores demonstrate excellent discrimination ability:
+
+\begin{itemize}
+\item Logistic Regression AUC: 0.99
+\item Linear SVM AUC: 0.99
+\item RBF Kernel SVM AUC: 0.99
+\end{itemize}
+
+All three algorithms achieved near-perfect AUC scores, indicating excellent ability to distinguish between benign and malignant tumors across all decision thresholds.
+
+\subsection{Iris Dataset Results}
+
+\subsubsection{Overall Performance}
+
+\begin{table}[!hbt]
+\centering
+\caption{Iris Dataset Performance}
+\label{tab:iris_performance}
+\begin{tabular}{lcccc}
+\toprule
+Algorithm & Test Acc. (\%) & CV Score (\%) & Best C & Best $\gamma$ \\
+\midrule
+Logistic Regression & 91.11 & 98.10 & 1.0 & - \\
+Linear SVM & 91.11 & 98.10 & 1.0 & - \\
+RBF Kernel SVM & \textbf{95.56} & 97.14 & 10.0 & 0.1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+On the Iris dataset, RBF Kernel SVM achieved the highest test accuracy (95.56\%), suggesting the presence of non-linear patterns that benefit from kernel methods. The gap between linear methods (91.11\%) and RBF SVM (95.56\%) indicates that the Iris dataset's decision boundaries are not entirely linear.
+
+\subsubsection{Confusion Matrix Analysis}
+The confusion matrices reveal which classes are most easily confused:
+
+\textbf{RBF Kernel SVM (Best Performer):}
+\begin{itemize}
+\item Setosa (Class 0): Perfectly classified (15/15 correct)
+\item Versicolor (Class 1): 13/15 correct (2 misclassified as Virginica)
+\item Virginica (Class 2): 15/15 correct
+\end{itemize}
+
+The confusion primarily occurs between Versicolor and Virginica, which is well-documented in machine learning literature as these species have overlapping feature distributions.
+
+\subsection{Comparative Analysis}
+
+\subsubsection{Cross-Dataset Performance}
+
+\begin{table}[!hbt]
+\centering
+\caption{Algorithm Performance Across Datasets}
+\label{tab:cross_comparison}
+\begin{tabular}{lccc}
+\toprule
+Algorithm & Breast Cancer & Iris & Average \\
+\midrule
+Logistic Regression & 96.10\% & 91.11\% & 93.61\% \\
+Linear SVM & 95.61\% & 91.11\% & 93.36\% \\
+RBF Kernel SVM & 95.61\% & \textbf{95.56\%} & \textbf{95.59\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+RBF Kernel SVM achieves the highest average accuracy (95.59\%) across both datasets, demonstrating its versatility in handling both linear and non-linear patterns.
+
+\subsubsection{Dataset Characteristics Impact}
+
+\textbf{Breast Cancer (Linear):}
+\begin{itemize}
+\item High-dimensional (10 features)
+\item Moderately imbalanced (2:1 ratio)
+\item Appears largely linearly separable
+\item Linear methods (LR, Linear SVM) perform excellently
+\end{itemize}
+
+\textbf{Iris (Non-linear):}
+\begin{itemize}
+\item Low-dimensional (4 features)
+\item Perfectly balanced classes
+\item Contains non-linear class boundaries
+\item RBF Kernel SVM shows clear advantage
+\end{itemize}
+
+\subsubsection{Hyperparameter Sensitivity}
+
+\textbf{Regularization Parameter C:}
+\begin{itemize}
+\item Lower C (0.1-1.0) preferred for Breast Cancer, preventing overfitting
+\item Higher C (1.0-10.0) selected for Iris, allowing more flexible boundaries
+\end{itemize}
+
+\textbf{RBF Gamma Parameter:}
+\begin{itemize}
+\item 'scale' setting optimal for Breast Cancer
+\item Lower gamma (0.1) selected for Iris, providing smoother decision boundaries
+\end{itemize}
+
+\subsection{Visualization Insights}
+
+\subsubsection{Feature Distribution Analysis}
+The feature distribution histograms for the Breast Cancer dataset reveal:
+\begin{itemize}
+\item Clear separation between benign and malignant classes across most features
+\item Some features show stronger discriminative power than others
+\item Gaussian-like distributions validating the applicability of linear classifiers
+\end{itemize}
+
+\subsubsection{Scatter Plot Analysis}
+\begin{itemize}
+\item Breast Cancer: Good linear separability in 2D projections
+\item Iris: Setosa clearly separated, Versicolor-Virginica overlap visible
+\end{itemize}
+
+\section{Discussion}
 
 \subsection{Key Findings}
+
 \begin{enumerate}
-\item \textbf{Performance Superiority:} Logistic Regression achieved the highest accuracy (96.10\%) while maintaining the lowest computational cost (1.8ms), making it the optimal choice for large-scale linear classification tasks.
+\item \textbf{Dataset Linearity Matters:} Linear models excel on the Breast Cancer dataset (linearly separable), while RBF Kernel SVM shows advantage on Iris (non-linear boundaries).
 
-\item \textbf{Efficiency Trade-offs:} RBF Kernel SVM's ability to capture non-linear relationships comes at significant computational cost (18.4ms training time), justifying its use only when non-linearity is substantial.
+\item \textbf{Cross-Validation Reliability:} High CV scores (97-98\%) provide confidence in model generalization, though some variance exists between CV and test performance.
 
-\item \textbf{Robustness:} Linear SVM demonstrated consistent performance with good generalization capability, serving as a reliable baseline for classification tasks.
+\item \textbf{Class Imbalance Handling:} All algorithms handled the Breast Cancer's class imbalance well without requiring special techniques, likely due to the moderate imbalance ratio (2:1).
 
-\item \textbf{Dataset Characteristics:} The minimal performance gap between linear and non-linear methods (0.02\% difference) suggests that the dataset's underlying structure is predominantly linear, highlighting the importance of understanding data characteristics before algorithm selection.
+\item \textbf{Multi-class Challenges:} The Versicolor-Virginica confusion in Iris dataset highlights the importance of feature engineering and algorithm selection for overlapping classes.
+
+\item \textbf{Hyperparameter Importance:} Grid search with cross-validation proved essential---default parameters would have yielded suboptimal results.
+\end{enumerate}
+
+\subsection{Algorithm Selection Guidelines}
+
+\textbf{Choose Logistic Regression when:}
+\begin{itemize}
+\item Data is linearly separable
+\item Probabilistic predictions are needed
+\item Model interpretability is important
+\item Training speed is critical
+\end{itemize}
+
+\textbf{Choose Linear SVM when:}
+\begin{itemize}
+\item Maximum margin classification is desired
+\item Data is high-dimensional
+\item Robustness to outliers is needed
+\item Linear separability is expected
+\end{itemize}
+
+\textbf{Choose RBF Kernel SVM when:}
+\begin{itemize}
+\item Non-linear patterns are present
+\item Highest accuracy is the priority
+\item Dataset size is moderate (kernel methods scale poorly)
+\item Computational resources are available
+\end{itemize}
+
+\subsection{Experimental Methodology Strengths}
+
+\begin{enumerate}
+\item \textbf{Rigorous Hyperparameter Tuning:} 5-fold CV with grid search ensures optimal configurations
+\item \textbf{Comprehensive Evaluation:} Multiple metrics (accuracy, confusion matrix, ROC, precision/recall) provide complete picture
+\item \textbf{Standard Benchmarks:} LIBSVM datasets enable comparison with existing literature
+\item \textbf{Proper Preprocessing:} Feature standardization and stratified splitting follow best practices
+\item \textbf{Reproducibility:} Fixed random seeds and clear documentation
+\end{enumerate}
+
+\section{Conclusion}
+
+This experiment successfully compared three classification algorithms across binary and multi-class tasks, revealing important insights about algorithm selection and dataset characteristics.
+
+\subsection{Main Conclusions}
+
+\begin{enumerate}
+\item \textbf{Best Binary Classifier (Breast Cancer):} Logistic Regression (96.10\% accuracy, 97.49\% CV score) proved optimal for linearly separable binary classification, offering simplicity and interpretability alongside excellent performance.
+
+\item \textbf{Best Multi-class Classifier (Iris):} RBF Kernel SVM (95.56\% accuracy) demonstrated clear advantage on non-linear multi-class data, justifying the computational overhead of kernel methods.
+
+\item \textbf{Most Versatile Algorithm:} RBF Kernel SVM achieved highest average performance (95.59\%) across both datasets, handling both linear and non-linear patterns effectively.
+
+\item \textbf{Linear Model Reliability:} Linear methods (Logistic Regression, Linear SVM) performed competitively on linearly separable data, offering simpler alternatives when appropriate.
 \end{enumerate}
 
 \subsection{Practical Recommendations}
-Based on the experimental findings, we propose the following practical guidelines:
 
-\begin{itemize}
-\item For large-scale applications with linearly separable data, Logistic Regression should be the preferred choice due to its superior accuracy and computational efficiency.
+\begin{enumerate}
+\item \textbf{Start with Linear Models:} For initial baseline, use Logistic Regression or Linear SVM---they're fast, interpretable, and often sufficient.
 
-\item When computational resources are limited but robust performance is required, Linear SVM provides an excellent balance of accuracy and scalability.
+\item \textbf{Visualize First:} Scatter plots and feature distributions help assess linearity before choosing algorithms.
 
-\item RBF Kernel SVM should be reserved for datasets with significant non-linear patterns where the performance gain justifies the computational overhead.
+\item \textbf{Always Use Cross-Validation:} 5-fold CV with grid search is essential for reliable hyperparameter selection.
 
-\item Always perform exploratory data analysis to assess the linearity of the problem before selecting the appropriate algorithm.
-\end{itemize}
+\item \textbf{Consider Trade-offs:} Balance accuracy needs against computational constraints and interpretability requirements.
+
+\item \textbf{Evaluate Comprehensively:} Use multiple metrics (accuracy, confusion matrix, ROC) rather than relying on a single measure.
+\end{enumerate}
 
 \subsection{Limitations and Future Work}
-This study has several limitations that provide opportunities for future research:
 
+\textbf{Limitations:}
 \begin{itemize}
-\item The experiment utilized synthetic data; validation on real-world datasets would strengthen the findings.
+\item Limited to two relatively small datasets
+\item Did not explore advanced kernels (polynomial, sigmoid)
+\item No computational time analysis included
+\item Limited hyperparameter search ranges for efficiency
+\end{itemize}
 
-\item Only three algorithms were compared; extending the study to include other methods like decision trees, random forests, and neural networks would provide broader insights.
-
-\item The dataset size was moderate; testing on larger datasets would better reveal scalability characteristics.
-
-\item Hyperparameter optimization was not extensively explored; systematic tuning could potentially improve performance.
+\textbf{Future Work:}
+\begin{itemize}
+\item Extend to larger, more complex real-world datasets
+\item Implement ensemble methods (Random Forest, Gradient Boosting)
+\item Conduct detailed learning curve analysis
+\item Explore feature selection and dimensionality reduction impact
+\item Compare with deep learning approaches
+\item Analyze computational efficiency systematically
 \end{itemize}
 
 \subsection{Final Remarks}
-The experiment successfully demonstrates that algorithm selection in machine learning involves careful consideration of multiple factors including accuracy, computational efficiency, scalability, and data characteristics. Logistic Regression emerged as the optimal choice for the given imbalanced classification task, but the best algorithm choice ultimately depends on the specific requirements and constraints of each application. This empirical study contributes valuable insights to the machine learning community and provides practical guidance for practitioners dealing with similar classification challenges.
+
+This experiment demonstrates that successful machine learning requires more than just applying algorithms---it demands understanding data characteristics, rigorous experimental methodology, and thoughtful algorithm selection. The Breast Cancer and Iris datasets, despite their modest size, provide valuable insights into classifier behavior that generalize to larger problems.
+
+The key takeaway is that no single algorithm is universally best. Logistic Regression excelled on linear data, while RBF Kernel SVM proved superior for non-linear patterns. By following systematic evaluation procedures with proper cross-validation, data visualization, and multiple performance metrics, practitioners can make informed decisions that balance accuracy, interpretability, and computational efficiency.
+
+\section*{Acknowledgments}
+We thank the LIBSVM repository maintainers for providing the benchmark datasets, and the scikit-learn development team for their excellent machine learning library.
+
+\begin{thebibliography}{9}
+
+\bibitem{libsvm}
+Chang, C. C., \& Lin, C. J. (2011). LIBSVM: a library for support vector machines. \textit{ACM transactions on intelligent systems and technology (TIST)}, 2(3), 1-27.
+
+\bibitem{scikit}
+Pedregosa, F., et al. (2011). Scikit-learn: Machine learning in Python. \textit{Journal of machine learning research}, 12(Oct), 2825-2830.
+
+\bibitem{bishop}
+Bishop, C. M. (2006). \textit{Pattern recognition and machine learning}. Springer.
+
+\bibitem{hastie}
+Hastie, T., Tibshirani, R., \& Friedman, J. (2009). \textit{The elements of statistical learning: data mining, inference, and prediction}. Springer.
+
+\bibitem{cortes}
+Cortes, C., \& Vapnik, V. (1995). Support-vector networks. \textit{Machine learning}, 20(3), 273-297.
+
+\end{thebibliography}
 
 \end{document}
