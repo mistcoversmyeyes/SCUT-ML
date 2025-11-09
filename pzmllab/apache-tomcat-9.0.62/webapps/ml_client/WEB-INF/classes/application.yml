@@ -1,0 +1,19 @@
+server:
+  port: 5560
+  servlet:
+    context-path: /ml_client
+logging:
+  level:
+    com.kingpoint: debug
+    org.springframework: warn
+spring:
+  profiles:
+    active: linux
+jml:
+  server:
+    ##服务端远程地址
+    ##校内JetAutoML平台地址（根据实际情况修改）
+    url: http://202.38.200.182:8333/process-api/process-experiment/upload
+    ##备用地址（如需修改，取消注释并修改IP）
+#    url: http://192.168.30.143:8333/process-api/process-experiment/upload
+#    url: http://localhost:8108/process-experiment/upload
