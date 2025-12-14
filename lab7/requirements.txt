@@ -1,0 +1,15 @@
+# 精简版依赖列表：仅包含本实验 Notebook 实际需要的核心包
+# 建议在 Python 3.8–3.10 的虚拟环境中使用
+
+# 深度学习框架（版本可按课堂示例调整）
+torch
+
+# 科学计算与可视化
+numpy
+matplotlib
+
+# 文本处理与评估
+nltk
+
+# JetML 日志（仅在使用 JetML 平台时需要）
+pzmllog
