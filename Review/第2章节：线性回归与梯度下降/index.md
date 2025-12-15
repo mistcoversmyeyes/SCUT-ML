@@ -1,4 +1,4 @@
-## 考点  PPT 2: 线性回归与梯度下降 (Linear Regression)
+**Lec2: 线性回归与梯度下降 (Linear Regression) 考点：**
 - [x] **模型与损失**：
     - 模型：$f(x) = w^T x + b$。
     - 损失：均方误差 $L(w) = \frac{1}{2}||y - Xw||^2$。
@@ -8,7 +8,7 @@
 - [x] **梯度下降 (Gradient Descent)**：
     - 迭代公式：$w_{k+1} = w_k - \eta \nabla L(w)$。
     - *手算准备*：给你简单数据，能算一步迭代。
-
+---
 
 ## 模型
 - 输入：训练数据集 $D = \{(x_i, y_i)\}_{i=1}^N$，其中 $x_i \in \mathbb{R}^d$，$y_i \in \mathbb{R}$。
