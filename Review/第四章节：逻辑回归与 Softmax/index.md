@@ -47,29 +47,93 @@
 
 ### 推导
 - 交叉熵损失源自最大似然估计 (Maximum Likelihood Estimation, MLE)。
-- 假设样本独立同分布 (i.i.d.)，则似然函数为 
-  $$ 
-  \begin{aligned}
-      L(\vec{w}, b) &= \prod_{i=1}^N P(y_i | x_i; \vec{w}, b) \\
-        &= \prod_{i=1}^N \hat{y_i}^{y_i} (1 - \hat{y_i})^{1 - y_i}
-    \end{aligned}
-  $$
-- 取对数似然函数并取负号，得到交叉熵损失：
-  $$
-    \begin{aligned}
-        -\log L(\vec{w}, b) &= -\sum_{i=1}^N \left[ y_i \log \hat{y_i} + (1 - y_i) \log(1 - \hat{y_i}) \right] \\
-        &= N \cdot L
-    \end{aligned}
-  $$
-- 其中，$\hat{y_i} = g(\vec{w}^T \vec{x_i} + b)$。
+
+> **Insight：似然函数到底在“估计/衡量”什么？**
+> 
+> 把参数 $w$ 当作“可调旋钮”，把数据集 $D=\{(x_i,y_i)\}_{i=1}^N$ 当作“已经发生的事实”。
+> 似然 $L(w)$ 衡量的是：**在当前参数 $w$ 下，模型让“我们观测到的整套标签 $y_1,\dots,y_N$”发生的概率有多大**。
+> 换句话说，MLE 就是在所有 $w$ 里挑一个，让这套观测数据“最像是由模型生成的”。
+
+对号入座（本特例为何写成连乘）：
+- 逻辑回归把 $\hat{y_i}=\sigma(w^T x_i+b)$ 定义为 $P(y_i=1\mid x_i;w,b)$，因此 $P(y_i=0\mid x_i;w,b)=1-\hat{y_i}$。
+- 若进一步假设样本在给定输入 $x_i$ 后条件独立（i.i.d. 的“独立”部分），则整套标签同时出现的概率可拆成各样本概率的乘积：$L(w)=\prod_{i=1}^N P(y_i\mid x_i;w,b)$。
+
+**极大似然估计 (MLE) 推导：**
+
+1.  对于随机变量 $Y$，其在 给定参数  $w$  和输入 $x_i$ 的条件下，其值为 $y_i$ 的概率为：
+    $$
+    P(Y=y_i\mid x_i)=p_i^{y_i}(1-p_i)^{1-y_i}=\begin{cases}
+    p_i=\hat{y_i}, & y_i=1\\
+    1-p_i=1-\hat{y_i}, & y_i=0
+    \end{cases}.
+    $$
+    
+    这个“统一式”还有一个重要作用：它易于取对数并改写为指数族形式，为后续推导 Logit（对数几率）与凸性的结论打下基础。
+
+        
+2.  似然函数（Likelihood）是所有样本概率的乘积 ：
+    
+    $$
+    L\left(w\right)=\prod_{i=1}^{N} P\left(Y = y_{i}∣x_{i}\right)
+    $$
+    
+3.  **负对数似然 (NLL) / 交叉熵损失 (Cross Entropy)**： 为了方便计算（变乘为加）并转化为最小化问题，我们取负对数 ：
+    
+    $$
+    J\left(w\right)=−\frac{1}{N}\ln L\left(w\right)=−\frac{1}{N}\sum_{i=1}^{N} \left[y_{i}\ln \hat{y_i}+\left(1−y_{i}\right)\ln \left(1−\hat{y_i}\right)\right]
+    $$
+    
+    这就是逻辑回归的损失函数。
 
 
 
 ## 训练（梯度计算）
 
-- 计算梯度：$$ \nabla_{\vec{w}} L = \frac{1}{N} \sum_{i=1}^N (\hat{y_i} - y_i) \vec{x_i} $$
-- 计算偏导数：$$ \frac{\partial L}{\partial b} = \frac{1}{N} \sum_{i=1}^N (\hat{y_i} - y_i) $$  
-- 其中，$\hat{y_i} = g(\vec{w}^T \vec{x_i} + b)$。
+
+我们需要计算损失  $J\left(w\right)$  对参数  $w$  的偏导数。
+
+**前置性质（Sigmoid 的导数）：**
+
+$$
+g^{′}\left(z\right)=g\left(z\right)\left(1−g\left(z\right)\right)
+$$
+
+即： $\hat{y}^{′}=\hat{y}\left(1−\hat{y}\right)$ 。
+
+**推导结论：** 虽然损失函数看起来很复杂（这就带有 log 又带有指数），但求导后的结果非常简洁优雅 ：
+
+$$
+\frac{\partial J\left(w\right)}{\partial w}=\frac{1}{N}\sum_{i=1}^{N} \left(\hat{y}_{i}−y_{i}\right)x_{i}
+$$
+
+*   **$\hat{y}_{i}−y_{i}$**：预测误差（Prediction Error）。
+    
+*   **$\vec{x}_{i}$**：输入特征。
+    
+*   **物理意义**：梯度方向就是 **(误差)  $\times$  (输入)**。误差越大，梯度更新幅度越大。
+    
+
+**参数更新 (Gradient Descent):**
+
+$$
+w:=w−\eta \frac{\partial J\left(w\right)}{\partial w}
+$$
+
+其中  $\eta$  是学习率 。
+
+* * *
+
+### 总结：逻辑回归 Cheat Sheet (考前速记)
+
+| 概念            | 公式 / 核心点                       |
+| --------------- | ----------------------------------- |
+| 模型            | y^​=σ(wTx+b)=1+e−(wTx+b)1​          |
+| 由来            | 对数几率ln(1−pp​)的线性假设         |
+| 损失函数        | 交叉熵 (Cross Entropy):$$ J\left(w\right)=−\frac{1}{N}\ln L\left(w\right)=−\frac{1}{N}\sum_{i=1}^{N} \left[y_{i}\ln \hat{y_i}+\left(1−y_{i}\right)\ln \left(1−\hat{y_i}\right)\right]$$          |
+| 优化方法        | 极大似然估计 (MLE)→梯度下降         |
+| 梯度公式        | ​    $\frac{\partial J\left(w\right)}{\partial w}=\frac{1}{N}\sum_{i=1}^{N} \left(\hat{y}_{i}−y_{i}\right)x_{i}$        |
+| 与 Softmax 关系 | Softmax 在类别数K=2时退化为逻辑回归 |
+
 
 ## Q&A
 
